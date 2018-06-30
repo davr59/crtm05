@@ -5,7 +5,16 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="2.6.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="2.6.1" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Geographic\" />
+    <Folder Include="Lambert\" />
+    <Folder Include="Ctrm05\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Remove="Crtm05CoordinateSystem.cs" />
+    <Compile Remove="Crtm05CoordinateSystemOptions.cs" />
+  </ItemGroup>
 </Project>

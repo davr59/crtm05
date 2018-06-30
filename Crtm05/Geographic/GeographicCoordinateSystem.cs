@@ -1,4 +1,4 @@
-﻿namespace Crtm05
+﻿namespace Crtm05.Geographic
 {
     public class GeographicCoordinateSystem
     {

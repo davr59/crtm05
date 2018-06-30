@@ -47,8 +47,6 @@ namespace Crtm05
         const double b23 = -2.70578632E-33;
         const double b14 = 1.2306633E-33;
 
-        const double fe = 500000;
-
         public double LatitudeOrigin => latitudeOrigin;
         public double LongitudeOrigin => longitudeOrigin;
 
@@ -110,8 +108,5 @@ namespace Crtm05
         public double B32 => b32;
         public double B23 => b23;
         public double B14 => b14;
-
-        public double LA => A * (1 - E2) * (AA * Start - BB / 2 * Math.Sin(2 * Start) + CC / 4 * Math.Sin(4 * Start) - DD / 6 * Math.Sin(6 * Start) + EE / 8 * Math.Sin(8 * Start) - FF / 10 * Math.Sin(10 * Start));
-        public double FE => fe;
     }
 }

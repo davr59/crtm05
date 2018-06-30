@@ -1,28 +1,18 @@
 ﻿using System;
 
-namespace Crtm05
+namespace Crtm05.Geographic
 {
     public class GeographicCoordinate
     {
         public double Coordinate
         {
-            get
-            {
-                return coordinate;
-            }
-            set
-            {
-                coordinate = value;
-                UpdateDegreesMinutesSeconds();
-            }
+            get => coordinate;
+            set => UpdateCoordinate(value);
         }
 
         public int Degrees
         {
-            get
-            {
-                return degrees;
-            }
+            get => degrees;
             set
             {
                 degrees = value;
@@ -32,10 +22,7 @@ namespace Crtm05
 
         public int Minutes
         {
-            get
-            {
-                return minutes;
-            }
+            get => minutes;
             set
             {
                 minutes = value;
@@ -45,10 +32,7 @@ namespace Crtm05
 
         public double Seconds
         {
-            get
-            {
-                return seconds;
-            }
+            get => seconds;
             set
             {
                 seconds = value;
@@ -56,14 +40,9 @@ namespace Crtm05
             }
         }
 
-        double coordinate;
-        int degrees;
-        int minutes;
-        double seconds;
-
         public GeographicCoordinate(double coordinate)
         {
-            Coordinate = coordinate;
+            UpdateCoordinate(coordinate);
         }
 
         public GeographicCoordinate(int degrees, int minutes, double seconds)
@@ -73,6 +52,11 @@ namespace Crtm05
             this.seconds = seconds;
             UpdateCoordinate();
         }
+
+        double coordinate;
+        int degrees;
+        int minutes;
+        double seconds;
 
         void UpdateDegreesMinutesSeconds()
         {
@@ -84,6 +68,12 @@ namespace Crtm05
         void UpdateCoordinate()
         {
             coordinate = degrees + ((double)minutes / 60) + (seconds / 3600);
+        }
+
+        void UpdateCoordinate(double newCoordinate)
+        {
+            coordinate = newCoordinate;
+            UpdateDegreesMinutesSeconds();
         }
     }
 }
