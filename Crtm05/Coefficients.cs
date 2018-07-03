@@ -48,8 +48,9 @@
         const double f0 = 149.644487588;
         const double e1 = 0.99969990521;
         const double f1 = 0.00000034731;
-        const double m0 = -7.75237044;
-        const double n0 = -3.525688428;
+
+        const double m0 = 7.75237044;
+        const double n0 = 3.525688428;
         const double m1 = 0.99999913361;
         const double n1 = 0.00000000018;
 
@@ -88,6 +89,54 @@
         const double u02 = -4.57;
         const double u21 = 12.39;
         const double u03 = -4.13;
+
+        const double aa00 = 1156874.11;
+        const double aa10 = 99964.18;
+        const double aa01 = -105.22;
+        const double aa20 = -0.01;
+        const double aa11 = -8.97;
+        const double aa30 = -4.15;
+        const double aa21 = 0.03;
+        const double aa12 = 12.37;
+        const double aa03 = 0;
+
+        const double bb00 = 463736.66;
+        const double bb10 = 105.19;
+        const double bb01 = 99964.19;
+        const double bb20 = 4.49;
+        const double bb02 = -4.49;
+        const double bb21 = -12.39;
+        const double bb12 = 0.03;
+        const double bb03 = 4.12;
+
+        const double ee0 = -0.179913184;
+        const double ff0 = -149.644487588;
+        const double ee1 = 1.00030018487392;
+        const double ff1 = -0.00000034731;
+
+        const double mm0 = -7.75237044;
+        const double nn0 = -3.525688428;
+        const double mm1 = 1.00000086639075;
+        const double nn1 = -0.00000000018;
+
+        const double c00 = 994727.07;
+        const double c10 = 99964.19;
+        const double c01 = 91.33;
+        const double c20 = 0;
+        const double c11 = 9.12;
+        const double c30 = -4.12;
+        const double c21 = -0.03;
+        const double c12 = 12.37;
+        const double c03 = 0.01;
+
+        const double d00 = 536853.82;
+        const double d10 = -91.32;
+        const double d01 = 99964.21;
+        const double d20 = -4.56;
+        const double d02 = 4.56;
+        const double d21 = -12.36;
+        const double d12 = -0.03;
+        const double d03 = 4.12;
 
 
         public double A10 => a10;
@@ -136,6 +185,7 @@
         public double F0 => f0;
         public double E1 => e1;
         public double F1 => f1;
+
         public double M0 => m0;
         public double N0 => n0;
         public double M1 => m1;
@@ -176,5 +226,53 @@
         public double U02 => u02;
         public double U21 => u21;
         public double U03 => u03;
+
+        public double AA00 => aa00;
+        public double AA10 => aa10;
+        public double AA01 => aa01;
+        public double AA20 => aa20;
+        public double AA11 => aa11;
+        public double AA30 => aa30;
+        public double AA21 => aa21;
+        public double AA12 => aa12;
+        public double AA03 => aa03;
+
+        public double BB00 => bb00;
+        public double BB10 => bb10;
+        public double BB01 => bb01;
+        public double BB20 => bb20;
+        public double BB02 => bb02;
+        public double BB21 => bb21;
+        public double BB12 => bb12;
+        public double BB03 => bb03;
+
+        public double EE0 => ee0;
+        public double FF0 => ff0;
+        public double EE1 => ee1;
+        public double FF1 => ff1;
+
+        public double MM0 => mm0;
+        public double NN0 => nn0;
+        public double MM1 => mm1;
+        public double NN1 => nn1;
+
+        public double C00 => c00;
+        public double C10 => c10;
+        public double C01 => c01;
+        public double C20 => c20;
+        public double C11 => c11;
+        public double C30 => c30;
+        public double C21 => c21;
+        public double C12 => c12;
+        public double C03 => c03;
+
+        public double D00 => d00;
+        public double D10 => d10;
+        public double D01 => d01;
+        public double D20 => d20;
+        public double D02 => d02;
+        public double D21 => d21;
+        public double D12 => d12;
+        public double D03 => d03;
     }
 }

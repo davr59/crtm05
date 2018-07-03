@@ -6,7 +6,7 @@ namespace Crtm05
     {
         const double latitudeOrigin = 10;
         const double longitudeOrigin = -84;
-        const double la = 1105855;
+        const double la = 1105854.83321889;
         const double fe = 500000;
         const double rho = Math.PI / 180;
 
