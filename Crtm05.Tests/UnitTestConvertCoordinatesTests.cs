@@ -9,7 +9,7 @@ namespace Crtm05.Tests
     public class UnitTestConvertCoordinatesTests
     {
         [Fact]
-        public void ToGeographicFromCrtm05()
+        public void ToGeographic_Crtm05CoordinateSystem_Converted()
         {
             var latitude = 1105744;
             var longitude = 500000;
@@ -28,7 +28,7 @@ namespace Crtm05.Tests
         }
 
         [Fact]
-        public void ToNorthLambertFromCrtm05()
+        public void ToNorthLambert_Crtm05CoordinateSystem_Converted()
         {
             var latitude = 1001163;
             var longitude = 463569;
@@ -41,7 +41,7 @@ namespace Crtm05.Tests
         }
 
         [Fact]
-        public void ToSouthLambertFromCrtm05()
+        public void ToSouthLambert_Crtm05CoordinateSystem_Converted()
         {
             var latitude = 782827;
             var longitude = 537035;
@@ -54,7 +54,7 @@ namespace Crtm05.Tests
         }
 
         [Fact]
-        public void ToCrtm05FromGeographicCoordinateSystem()
+        public void ToCrtm05_GeographicCoordinateSystem_Converted()
         {
             var latitude = 10;
             var longitude = -84;
@@ -67,7 +67,7 @@ namespace Crtm05.Tests
         }
 
         [Fact]
-        public void ToCrtm05FromNorthLambertCoordinateSystem()
+        public void ToCrtm05_NorthLambertCoordinateSystem_Converted()
         {
             var latitude = 115744;
             var longitude = 500000;
@@ -80,7 +80,7 @@ namespace Crtm05.Tests
         }
 
         [Fact]
-        public void ToCrtm05FromSouthLambertCoordinateSystem()
+        public void ToCrtm05_SouthLambertCoordinateSystem_Converted()
         {
             var latitude = 115744;
             var longitude = 500000;

@@ -6,7 +6,7 @@ namespace Crtm05.Tests
     public class GeographicCoordinateTests
     {
         [Fact]
-        public void ToDegreesMinutesSecondsFromCoordinate()
+        public void ToDegreesMinutesSeconds_Coordinate_Converted()
         {
             var coordinate = 10.5;
 
@@ -18,7 +18,7 @@ namespace Crtm05.Tests
         }
 
         [Fact]
-        public void ToCoodinateFromDegreesMinutesSeconds()
+        public void ToCoordinate_DegreesMinutesSeconds_Converted()
         {
             var degrees = 10;
             var minutes = 30;
