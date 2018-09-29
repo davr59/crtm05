@@ -16,15 +16,15 @@ namespace Crtm05.Tests
 
             var geographicCoordinateSystem = ConvertCoordinates.ToGeographic(new Crtm05CoordinateSystem(latitude, longitude));
 
-            Assert.Equal(10, Math.Round(geographicCoordinateSystem.Latitude.Coordinate));
-            Assert.Equal(9, geographicCoordinateSystem.Latitude.Degrees);
-            Assert.Equal(59, geographicCoordinateSystem.Latitude.Minutes);
-            Assert.Equal(60, Math.Round(geographicCoordinateSystem.Latitude.Seconds));
+            Assert.Equal(10, Math.Round(geographicCoordinateSystem.Latitude));
+            Assert.Equal(9, geographicCoordinateSystem.LatitudeDegrees);
+            Assert.Equal(59, geographicCoordinateSystem.LatitudeMinutes);
+            Assert.Equal(60, Math.Round(geographicCoordinateSystem.LatitudeSeconds));
 
-            Assert.Equal(-84, Math.Round(geographicCoordinateSystem.Longitude.Coordinate));
-            Assert.Equal(-84, geographicCoordinateSystem.Longitude.Degrees);
-            Assert.Equal(0, geographicCoordinateSystem.Longitude.Minutes);
-            Assert.Equal(0, Math.Round(geographicCoordinateSystem.Longitude.Seconds));
+            Assert.Equal(-84, Math.Round(geographicCoordinateSystem.Longitude));
+            Assert.Equal(-84, geographicCoordinateSystem.LongitudeDegrees);
+            Assert.Equal(0, geographicCoordinateSystem.LongitudeMinutes);
+            Assert.Equal(0, Math.Round(geographicCoordinateSystem.LongitudeSeconds));
         }
 
         [Fact]
@@ -59,7 +59,7 @@ namespace Crtm05.Tests
             var latitude = 10;
             var longitude = -84;
 
-            var crtm05CoordinateSystem = ConvertCoordinates.ToCrtm05(new GeographicCoordinateSystem(new GeographicCoordinate(latitude), new GeographicCoordinate(longitude)));
+            var crtm05CoordinateSystem = ConvertCoordinates.ToCrtm05(new GeographicCoordinateSystem(latitude, longitude));
 
             Assert.Equal(1105744, Math.Round(crtm05CoordinateSystem.Latitude));
 

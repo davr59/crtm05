@@ -7,7 +7,11 @@ namespace Crtm05.Geographic
         public double Coordinate
         {
             get => coordinate;
-            set => UpdateCoordinate(value);
+            set
+            {
+                coordinate = value;
+                UpdateDegreesMinutesSeconds();
+            }
         }
 
         public int Degrees
@@ -42,7 +46,8 @@ namespace Crtm05.Geographic
 
         public GeographicCoordinate(double coordinate)
         {
-            UpdateCoordinate(coordinate);
+            this.coordinate = coordinate;
+            UpdateDegreesMinutesSeconds();
         }
 
         public GeographicCoordinate(int degrees, int minutes, double seconds)
@@ -68,12 +73,6 @@ namespace Crtm05.Geographic
         void UpdateCoordinate()
         {
             coordinate = degrees + ((double)minutes / 60) + (seconds / 3600);
-        }
-
-        void UpdateCoordinate(double newCoordinate)
-        {
-            coordinate = newCoordinate;
-            UpdateDegreesMinutesSeconds();
         }
     }
 }
