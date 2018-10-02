@@ -1,4 +1,4 @@
-﻿abstract class CoordinateSystem {
+﻿export abstract class CoordinateSystem {
   protected constructor(private latitude: number, private longitude: number) {}
 
   getLatitude(): number {

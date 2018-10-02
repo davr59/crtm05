@@ -1,173 +1,493 @@
-﻿using Crtm05.Ctrm05;
-using Crtm05.Geographic;
-using Crtm05.Lambert;
+﻿import { IParameters } from './iparameters';
+import { ICoefficients } from './icoefficients';
+import { Parameters } from './parameters';
+import { Coefficients } from './coefficients';
+import { Crtm05CoordinateSystem } from './ctrm05/crtm05-coordinate-system';
+import { GeographicCoordinateSystem } from './geographic/geographic-coordinate-system';
+import { NorthLambertCoordinateSystem } from './lambert/north-lambert-coordinate-system';
+import { SouthLambertCoordinateSystem } from './lambert/south-lambert-coordinate-system';
 
-namespace Crtm05
-{
-    public static class ConvertCoordinates
-    {
-        public static GeographicCoordinateSystem ToGeographic(Crtm05CoordinateSystem coordinates)
-        {
-            return ToGeographic(coordinates, new Parameters(), new Coefficients());
-        }
+export class ConvertCoordinates {
+  static toGeographicFromCrtm05(
+    coordinates: Crtm05CoordinateSystem,
+    parameters: IParameters = new Parameters(),
+    coefficients: ICoefficients = new Coefficients()
+  ): GeographicCoordinateSystem {
+    var deltaLatitude = coordinates.getLatitude() / 0.9999 - parameters.la;
+    var deltaLongitude = (coordinates.getLongitude() - parameters.fe) / 0.9999;
+    var deltaDegreesLatitude = this.deltaLatitude(
+      deltaLatitude,
+      deltaLongitude,
+      coefficients.b10,
+      coefficients.b20,
+      coefficients.b02,
+      coefficients.b30,
+      coefficients.b12,
+      coefficients.b40,
+      coefficients.b22,
+      coefficients.b04,
+      coefficients.b50,
+      coefficients.b32,
+      coefficients.b14
+    );
+    var deltaDegreesLongitude = this.deltaLongitude(
+      deltaLatitude,
+      deltaLongitude,
+      coefficients.b01,
+      coefficients.b11,
+      coefficients.b21,
+      coefficients.b03,
+      coefficients.b31,
+      coefficients.b13,
+      coefficients.b41,
+      coefficients.b23,
+      coefficients.b05
+    );
+    var latitude = deltaDegreesLatitude + parameters.latitudeOrigin;
+    var longitude = deltaDegreesLongitude + parameters.longitudeOrigin;
 
-        public static GeographicCoordinateSystem ToGeographic(Crtm05CoordinateSystem coordinates, IParameters parameters, ICoefficients coefficients)
-        {
-            var deltaLatitude = coordinates.Latitude / 0.9999 - parameters.LA;
-            var deltaLongitude = (coordinates.Longitude - parameters.FE) / 0.9999;
-            var deltaDegreesLatitude = DeltaLatitude(deltaLatitude, deltaLongitude, coefficients.B10, coefficients.B20, coefficients.B02, coefficients.B30, coefficients.B12, coefficients.B40, coefficients.B22, coefficients.B04, coefficients.B50, coefficients.B32, coefficients.B14);
-            var deltaDegreesLongitude = DeltaLongitude(deltaLatitude, deltaLongitude, coefficients.B01, coefficients.B11, coefficients.B21, coefficients.B03, coefficients.B31, coefficients.B13, coefficients.B41, coefficients.B23, coefficients.B05);
-            var latitude = deltaDegreesLatitude + parameters.LatitudeOrigin;
-            var longitude = deltaDegreesLongitude + parameters.LongitudeOrigin;
+    return new GeographicCoordinateSystem(latitude, longitude);
+  }
 
-            return new GeographicCoordinateSystem(new GeographicCoordinate(latitude), new GeographicCoordinate(longitude));
-        }
+  static toNorthLambertFromCrtm05(
+    coordinates: Crtm05CoordinateSystem,
+    coefficients: ICoefficients = new Coefficients()
+  ): NorthLambertCoordinateSystem {
+    var crtm98Latitude = this.crtmLatitude(
+      coordinates.getLatitude(),
+      coordinates.getLongitude(),
+      coefficients.e0,
+      coefficients.e1,
+      coefficients.f1
+    );
+    var crtm98Longitude = this.crtmLongitude(
+      coordinates.getLatitude(),
+      coordinates.getLongitude(),
+      coefficients.f0,
+      coefficients.e1,
+      coefficients.f1
+    );
+    var ctrm90Latitude = this.crtmLatitude(
+      crtm98Latitude,
+      crtm98Longitude,
+      coefficients.m0,
+      coefficients.m1,
+      coefficients.n1
+    );
+    var ctrm90Longitude = this.crtmLongitude(
+      crtm98Latitude,
+      crtm98Longitude,
+      coefficients.n0,
+      coefficients.m1,
+      coefficients.n1
+    );
+    var deltaLatitude = (ctrm90Latitude - 1156874.11) * 0.00001;
+    var deltaLongitude = (ctrm90Longitude - 463736.66) * 0.00001;
+    var latitude = this.fromDelta(
+      deltaLatitude,
+      deltaLongitude,
+      coefficients.r00,
+      coefficients.r10,
+      coefficients.r01,
+      coefficients.r20,
+      coefficients.r11,
+      coefficients.r02,
+      coefficients.r30,
+      0,
+      coefficients.r12,
+      0
+    );
+    var longitude = this.fromDelta(
+      deltaLatitude,
+      deltaLongitude,
+      coefficients.s00,
+      coefficients.s10,
+      coefficients.s01,
+      coefficients.s20,
+      coefficients.s11,
+      coefficients.s02,
+      0,
+      coefficients.s21,
+      0,
+      coefficients.s03
+    );
 
-        public static NorthLambertCoordinateSystem ToNorthLambert(Crtm05CoordinateSystem coordinates)
-        {
-            return ToNorthLambert(coordinates, new Coefficients());
-        }
+    return new NorthLambertCoordinateSystem(latitude, longitude);
+  }
 
-        public static NorthLambertCoordinateSystem ToNorthLambert(Crtm05CoordinateSystem coordinates, ICoefficients coefficients)
-        {
-            var crtm98Latitude = CrtmLatitude(coordinates.Latitude, coordinates.Longitude, coefficients.E0, coefficients.E1, coefficients.F1);
-            var crtm98Longitude = CrtmLongitude(coordinates.Latitude, coordinates.Longitude, coefficients.F0, coefficients.E1, coefficients.F1);
-            var ctrm90Latitude = CrtmLatitude(crtm98Latitude, crtm98Longitude, coefficients.M0, coefficients.M1, coefficients.N1);
-            var ctrm90Longitude = CrtmLongitude(crtm98Latitude, crtm98Longitude, coefficients.N0, coefficients.M1, coefficients.N1);
-            var deltaLatitude = (ctrm90Latitude - 1156874.11) * 0.00001;
-            var deltaLongitude = (ctrm90Longitude - 463736.66) * 0.00001;
-            var latitude = FromDelta(deltaLatitude, deltaLongitude, coefficients.R00, coefficients.R10, coefficients.R01, coefficients.R20, coefficients.R11, coefficients.R02, coefficients.R30, 0, coefficients.R12, 0);
-            var longitude = FromDelta(deltaLatitude, deltaLongitude, coefficients.S00, coefficients.S10, coefficients.S01, coefficients.S20, coefficients.S11, coefficients.S02, 0, coefficients.S21, 0, coefficients.S03);
+  static toSouthLambertFromCrtm05(
+    coordinates: Crtm05CoordinateSystem,
+    coefficients: ICoefficients = new Coefficients()
+  ): SouthLambertCoordinateSystem {
+    var crtm98Latitude = this.crtmLatitude(
+      coordinates.getLatitude(),
+      coordinates.getLongitude(),
+      coefficients.e0,
+      coefficients.e1,
+      coefficients.f1
+    );
+    var crtm98Longitude = this.crtmLongitude(
+      coordinates.getLatitude(),
+      coordinates.getLongitude(),
+      coefficients.f0,
+      coefficients.e1,
+      coefficients.f1
+    );
+    var ctrm90Latitude = this.crtmLatitude(
+      crtm98Latitude,
+      crtm98Longitude,
+      coefficients.m0,
+      coefficients.m1,
+      coefficients.n1
+    );
+    var ctrm90Longitude = this.crtmLongitude(
+      crtm98Latitude,
+      crtm98Longitude,
+      coefficients.n0,
+      coefficients.m1,
+      coefficients.n1
+    );
+    var deltaLatitude = (ctrm90Latitude - 994727.07) * 0.00001;
+    var deltaLongitude = (ctrm90Longitude - 536853.82) * 0.00001;
+    var latitude = this.fromDelta(
+      deltaLatitude,
+      deltaLongitude,
+      coefficients.t00,
+      coefficients.t10,
+      coefficients.t01,
+      coefficients.t20,
+      coefficients.t11,
+      0,
+      coefficients.t30,
+      coefficients.t21,
+      coefficients.t12,
+      0
+    );
+    var longitude = this.fromDelta(
+      deltaLatitude,
+      deltaLongitude,
+      coefficients.u00,
+      coefficients.u10,
+      coefficients.u01,
+      coefficients.u20,
+      coefficients.u11,
+      coefficients.u02,
+      0,
+      coefficients.u21,
+      0,
+      coefficients.u03
+    );
 
-            return new NorthLambertCoordinateSystem(latitude, longitude);
-        }
+    return new SouthLambertCoordinateSystem(latitude, longitude);
+  }
 
-        public static SouthLambertCoordinateSystem ToSouthLambert(Crtm05CoordinateSystem coordinates)
-        {
-            return ToSouthLambert(coordinates, new Coefficients());
-        }
+  static ToCrtm05FromGeographic(
+    coordinates: GeographicCoordinateSystem,
+    parameters: IParameters = new Parameters(),
+    coefficients: ICoefficients = new Coefficients()
+  ): Crtm05CoordinateSystem {
+    var deltaDegreesLatitude = coordinates.getLatitude() - parameters.latitudeOrigin;
+    var deltaDegreesLongitude = coordinates.getLongitude() - parameters.longitudeOrigin;
+    var deltaRadiansLatitude = deltaDegreesLatitude * parameters.rho;
+    var deltaRadiansLongitude = deltaDegreesLongitude * parameters.rho;
+    var deltaLatitude = this.deltaLatitude(
+      deltaRadiansLatitude,
+      deltaRadiansLongitude,
+      coefficients.a10,
+      coefficients.a20,
+      coefficients.a02,
+      coefficients.a30,
+      coefficients.a12,
+      coefficients.a40,
+      coefficients.a22,
+      coefficients.a04,
+      coefficients.a50,
+      coefficients.a32,
+      coefficients.a14
+    );
+    var deltaLongitude = this.deltaLongitude(
+      deltaRadiansLatitude,
+      deltaRadiansLongitude,
+      coefficients.a01,
+      coefficients.a11,
+      coefficients.a21,
+      coefficients.a03,
+      coefficients.a31,
+      coefficients.a13,
+      coefficients.a41,
+      coefficients.a23,
+      coefficients.a05
+    );
+    var latitude = (parameters.la + deltaLatitude) * 0.9999;
+    var longitude = parameters.fe + deltaLongitude * 0.9999;
 
-        public static SouthLambertCoordinateSystem ToSouthLambert(Crtm05CoordinateSystem coordinates, ICoefficients coefficients)
-        {
-            var crtm98Latitude = CrtmLatitude(coordinates.Latitude, coordinates.Longitude, coefficients.E0, coefficients.E1, coefficients.F1);
-            var crtm98Longitude = CrtmLongitude(coordinates.Latitude, coordinates.Longitude, coefficients.F0, coefficients.E1, coefficients.F1);
-            var ctrm90Latitude = CrtmLatitude(crtm98Latitude, crtm98Longitude, coefficients.M0, coefficients.M1, coefficients.N1);
-            var ctrm90Longitude = CrtmLongitude(crtm98Latitude, crtm98Longitude, coefficients.N0, coefficients.M1, coefficients.N1);
-            var deltaLatitude = (ctrm90Latitude - 994727.07) * 0.00001;
-            var deltaLongitude = (ctrm90Longitude - 536853.82) * 0.00001;
-            var latitude = FromDelta(deltaLatitude, deltaLongitude, coefficients.T00, coefficients.T10, coefficients.T01, coefficients.T20, coefficients.T11, 0, coefficients.T30, coefficients.T21, coefficients.T12, 0);
-            var longitude = FromDelta(deltaLatitude, deltaLongitude, coefficients.U00, coefficients.U10, coefficients.U01, coefficients.U20, coefficients.U11, coefficients.U02, 0, coefficients.U21, 0, coefficients.U03);
+    return new Crtm05CoordinateSystem(latitude, longitude);
+  }
 
-            return new SouthLambertCoordinateSystem(latitude, longitude);
-        }
+  static toCrtm05FromNorthLambert(
+    coordinates: NorthLambertCoordinateSystem,
+    coefficients: ICoefficients = new Coefficients()
+  ): Crtm05CoordinateSystem {
+    var deltaLatitude = (coordinates.getLatitude() - 271820.52) * 0.00001;
+    var deltaLongitude = (coordinates.getLongitude() - 500000) * 0.00001;
+    var crtm90Latitude = this.fromDelta(
+      deltaLatitude,
+      deltaLongitude,
+      coefficients.aa00,
+      coefficients.aa10,
+      coefficients.aa01,
+      coefficients.aa20,
+      coefficients.aa11,
+      0,
+      coefficients.aa30,
+      coefficients.aa21,
+      coefficients.aa12,
+      coefficients.aa03
+    );
+    var crtm90Longitude = this.fromDelta(
+      deltaLatitude,
+      deltaLongitude,
+      coefficients.bb00,
+      coefficients.bb10,
+      coefficients.bb01,
+      coefficients.bb20,
+      0,
+      coefficients.bb02,
+      0,
+      coefficients.bb21,
+      coefficients.bb12,
+      coefficients.bb03
+    );
+    var crtm98Latitude = this.crtmLatitude(
+      crtm90Latitude,
+      crtm90Longitude,
+      coefficients.mm0,
+      coefficients.mm1,
+      coefficients.nn1
+    );
+    var crtm98Longitude = this.crtmLongitude(
+      crtm90Latitude,
+      crtm90Longitude,
+      coefficients.nn0,
+      coefficients.mm1,
+      coefficients.nn1
+    );
+    var latitude = this.crtmLatitude(
+      crtm98Latitude,
+      crtm98Longitude,
+      coefficients.ee0,
+      coefficients.ee1,
+      coefficients.ff1
+    );
+    var longitude = this.crtmLongitude(
+      crtm98Latitude,
+      crtm98Longitude,
+      coefficients.ff0,
+      coefficients.ee1,
+      coefficients.ff1
+    );
 
-        public static Crtm05CoordinateSystem ToCrtm05(GeographicCoordinateSystem coordinates)
-        {
-            return ToCrtm05(coordinates, new Parameters(), new Coefficients());
-        }
+    return new Crtm05CoordinateSystem(latitude, longitude);
+  }
 
-        public static Crtm05CoordinateSystem ToCrtm05(GeographicCoordinateSystem coordinates, IParameters parameters, ICoefficients coefficients)
-        {
-            var deltaDegreesLatitude = coordinates.Latitude.Coordinate - parameters.LatitudeOrigin;
-            var deltaDegreesLongitude = coordinates.Longitude.Coordinate - parameters.LongitudeOrigin;
-            var deltaRadiansLatitude = deltaDegreesLatitude * parameters.Rho;
-            var deltaRadiansLongitude = deltaDegreesLongitude * parameters.Rho;
-            var deltaLatitude = DeltaLatitude(deltaRadiansLatitude, deltaRadiansLongitude, coefficients.A10, coefficients.A20, coefficients.A02, coefficients.A30, coefficients.A12, coefficients.A40, coefficients.A22, coefficients.A04, coefficients.A50, coefficients.A32, coefficients.A14);
-            var deltaLongitude = DeltaLongitude(deltaRadiansLatitude, deltaRadiansLongitude, coefficients.A01, coefficients.A11, coefficients.A21, coefficients.A03, coefficients.A31, coefficients.A13, coefficients.A41, coefficients.A23, coefficients.A05);
-            var latitude = (parameters.LA + deltaLatitude) * 0.9999;
-            var longitude = parameters.FE + deltaLongitude * 0.9999;
+  static toCrtm05FromSouthLambert(
+    coordinates: SouthLambertCoordinateSystem,
+    coefficients: ICoefficients = new Coefficients()
+  ): Crtm05CoordinateSystem {
+    var deltaLatitude = (coordinates.getLatitude() - 327987.44) * 0.00001;
+    var deltaLongitude = (coordinates.getLongitude() - 500000) * 0.00001;
+    var crtm90Latitude = this.fromDelta(
+      deltaLatitude,
+      deltaLongitude,
+      coefficients.c00,
+      coefficients.c10,
+      coefficients.c01,
+      coefficients.c20,
+      coefficients.c11,
+      0,
+      coefficients.c30,
+      coefficients.c21,
+      coefficients.c12,
+      coefficients.c03
+    );
+    var crtm90Longitude = this.fromDelta(
+      deltaLatitude,
+      deltaLongitude,
+      coefficients.d00,
+      coefficients.d10,
+      coefficients.d01,
+      coefficients.d20,
+      0,
+      coefficients.d02,
+      0,
+      coefficients.d21,
+      coefficients.d12,
+      coefficients.d03
+    );
+    var crtm98Latitude = this.crtmLatitude(
+      crtm90Latitude,
+      crtm90Longitude,
+      coefficients.mm0,
+      coefficients.mm1,
+      coefficients.nn1
+    );
+    var crtm98Longitude = this.crtmLongitude(
+      crtm90Latitude,
+      crtm90Longitude,
+      coefficients.nn0,
+      coefficients.mm1,
+      coefficients.nn1
+    );
+    var latitude = this.crtmLatitude(
+      crtm98Latitude,
+      crtm98Longitude,
+      coefficients.ee0,
+      coefficients.ee1,
+      coefficients.ff1
+    );
+    var longitude = this.crtmLongitude(
+      crtm98Latitude,
+      crtm98Longitude,
+      coefficients.ff0,
+      coefficients.ee1,
+      coefficients.ff1
+    );
 
-            return new Crtm05CoordinateSystem(latitude, longitude);
-        }
+    return new Crtm05CoordinateSystem(latitude, longitude);
+  }
 
-        public static Crtm05CoordinateSystem ToCrtm05(NorthLambertCoordinateSystem coordinates)
-        {
-            return ToCrtm05(coordinates, new Coefficients());
-        }
+  private static deltaLatitude(
+    deltaLatitude: number,
+    deltaLongitude: number,
+    coefficient1: number,
+    coefficient2: number,
+    coefficient3: number,
+    coefficient4: number,
+    coefficient5: number,
+    coefficient6: number,
+    coefficient7: number,
+    coefficient8: number,
+    coefficient9: number,
+    coefficient10: number,
+    coefficient11: number
+  ): number {
+    return (
+      deltaLatitude * coefficient1 +
+      deltaLatitude * deltaLatitude * coefficient2 +
+      deltaLongitude * deltaLongitude * coefficient3 +
+      deltaLatitude * deltaLatitude * deltaLatitude * coefficient4 +
+      deltaLatitude * deltaLongitude * deltaLongitude * coefficient5 +
+      deltaLatitude * deltaLatitude * deltaLatitude * deltaLatitude * coefficient6 +
+      deltaLatitude * deltaLatitude * deltaLongitude * deltaLongitude * coefficient7 +
+      deltaLongitude * deltaLongitude * deltaLongitude * deltaLongitude * coefficient8 +
+      deltaLatitude * deltaLatitude * deltaLatitude * deltaLatitude * deltaLatitude * coefficient9 +
+      deltaLatitude *
+        deltaLatitude *
+        deltaLatitude *
+        deltaLongitude *
+        deltaLongitude *
+        coefficient10 +
+      deltaLatitude *
+        deltaLongitude *
+        deltaLongitude *
+        deltaLongitude *
+        deltaLongitude *
+        coefficient11
+    );
+  }
 
-        public static Crtm05CoordinateSystem ToCrtm05(NorthLambertCoordinateSystem coordinates, ICoefficients coefficients)
-        {
-            var deltaLatitude = (coordinates.Latitude - 271820.52) * 0.00001;
-            var deltaLongitude = (coordinates.Longitude - 500000) * 0.00001;
-            var crtm90Latitude = FromDelta(deltaLatitude, deltaLongitude, coefficients.AA00, coefficients.AA10, coefficients.AA01, coefficients.AA20, coefficients.AA11, 0, coefficients.AA30, coefficients.AA21, coefficients.AA12, coefficients.AA03);
-            var crtm90Longitude = FromDelta(deltaLatitude, deltaLongitude, coefficients.BB00, coefficients.BB10, coefficients.BB01, coefficients.BB20, 0, coefficients.BB02, 0, coefficients.BB21, coefficients.BB12, coefficients.BB03);
-            var crtm98Latitude = CrtmLatitude(crtm90Latitude, crtm90Longitude, coefficients.MM0, coefficients.MM1, coefficients.NN1);
-            var crtm98Longitude = CrtmLongitude(crtm90Latitude, crtm90Longitude, coefficients.NN0, coefficients.MM1, coefficients.NN1);
-            var latitude = CrtmLatitude(crtm98Latitude, crtm98Longitude, coefficients.EE0, coefficients.EE1, coefficients.FF1);
-            var longitude = CrtmLongitude(crtm98Latitude, crtm98Longitude, coefficients.FF0, coefficients.EE1, coefficients.FF1);
+  private static deltaLongitude(
+    deltaLatitude: number,
+    deltaLongitude: number,
+    coefficient1: number,
+    coefficient2: number,
+    coefficient3: number,
+    coefficient4: number,
+    coefficient5: number,
+    coefficient6: number,
+    coefficient7: number,
+    coefficient8: number,
+    coefficient9: number
+  ): number {
+    return (
+      deltaLongitude * coefficient1 +
+      deltaLatitude * deltaLongitude * coefficient2 +
+      deltaLatitude * deltaLatitude * deltaLongitude * coefficient3 +
+      deltaLongitude * deltaLongitude * deltaLongitude * coefficient4 +
+      deltaLatitude * deltaLatitude * deltaLatitude * deltaLatitude * coefficient5 +
+      deltaLatitude * deltaLongitude * deltaLongitude * deltaLongitude * coefficient6 +
+      deltaLatitude *
+        deltaLatitude *
+        deltaLatitude *
+        deltaLatitude *
+        deltaLongitude *
+        coefficient7 +
+      deltaLatitude *
+        deltaLatitude *
+        deltaLongitude *
+        deltaLongitude *
+        deltaLongitude *
+        coefficient8 +
+      deltaLongitude *
+        deltaLongitude *
+        deltaLongitude *
+        deltaLongitude *
+        deltaLongitude *
+        coefficient9
+    );
+  }
 
-            return new Crtm05CoordinateSystem(latitude, longitude);
-        }
+  private static fromDelta(
+    deltaLatitude: number,
+    deltaLongitude: number,
+    coefficient1: number,
+    coefficient2: number,
+    coefficient3: number,
+    coefficient4: number,
+    coefficient5: number,
+    coefficient6: number,
+    coefficient7: number,
+    coefficient8: number,
+    coefficient9: number,
+    coefficient10: number
+  ): number {
+    return (
+      coefficient1 +
+      coefficient2 * deltaLatitude +
+      coefficient3 * deltaLongitude +
+      coefficient4 * deltaLatitude * deltaLatitude +
+      coefficient5 * deltaLatitude * deltaLongitude +
+      coefficient6 * deltaLongitude * deltaLongitude +
+      coefficient7 * deltaLatitude * deltaLatitude * deltaLatitude +
+      coefficient8 * deltaLatitude * deltaLatitude * deltaLongitude +
+      coefficient9 * deltaLatitude * deltaLongitude * deltaLongitude +
+      coefficient10 * deltaLongitude * deltaLongitude * deltaLongitude
+    );
+  }
 
-        public static Crtm05CoordinateSystem ToCrtm05(SouthLambertCoordinateSystem coordinates)
-        {
-            return ToCrtm05(coordinates, new Coefficients());
-        }
+  private static crtmLatitude(
+    crtmLatitude: number,
+    crtmLongitude: number,
+    coefficient1: number,
+    coefficient2: number,
+    coefficient3: number
+  ): number {
+    return this.crtmLongitude(
+      crtmLongitude,
+      crtmLatitude,
+      coefficient1,
+      coefficient2,
+      -1 * coefficient3
+    );
+  }
 
-        public static Crtm05CoordinateSystem ToCrtm05(SouthLambertCoordinateSystem coordinates, ICoefficients coefficients)
-        {
-            var deltaLatitude = (coordinates.Latitude - 327987.44) * 0.00001;
-            var deltaLongitude = (coordinates.Longitude - 500000) * 0.00001;
-            var crtm90Latitude = FromDelta(deltaLatitude, deltaLongitude, coefficients.C00, coefficients.C10, coefficients.C01, coefficients.C20, coefficients.C11, 0, coefficients.C30, coefficients.C21, coefficients.C12, coefficients.C03);
-            var crtm90Longitude = FromDelta(deltaLatitude, deltaLongitude, coefficients.D00, coefficients.D10, coefficients.D01, coefficients.D20, 0, coefficients.D02, 0, coefficients.D21, coefficients.D12, coefficients.D03);
-            var crtm98Latitude = CrtmLatitude(crtm90Latitude, crtm90Longitude, coefficients.MM0, coefficients.MM1, coefficients.NN1);
-            var crtm98Longitude = CrtmLongitude(crtm90Latitude, crtm90Longitude, coefficients.NN0, coefficients.MM1, coefficients.NN1);
-            var latitude = CrtmLatitude(crtm98Latitude, crtm98Longitude, coefficients.EE0, coefficients.EE1, coefficients.FF1);
-            var longitude = CrtmLongitude(crtm98Latitude, crtm98Longitude, coefficients.FF0, coefficients.EE1, coefficients.FF1);
-
-            return new Crtm05CoordinateSystem(latitude, longitude);
-        }
-
-        static double DeltaLatitude(double deltaLatitude, double deltaLongitude, double coefficient1, double coefficient2, double coefficient3, double coefficient4, double coefficient5, double coefficient6, double coefficient7, double coefficient8, double coefficient9, double coefficient10, double coefficient11)
-        {
-            return deltaLatitude * coefficient1 +
-                deltaLatitude * deltaLatitude * coefficient2 +
-                deltaLongitude * deltaLongitude * coefficient3 +
-                deltaLatitude * deltaLatitude * deltaLatitude * coefficient4 +
-                deltaLatitude * deltaLongitude * deltaLongitude * coefficient5 +
-                deltaLatitude * deltaLatitude * deltaLatitude * deltaLatitude * coefficient6 +
-                deltaLatitude * deltaLatitude * deltaLongitude * deltaLongitude * coefficient7 +
-                deltaLongitude * deltaLongitude * deltaLongitude * deltaLongitude * coefficient8 +
-                deltaLatitude * deltaLatitude * deltaLatitude * deltaLatitude * deltaLatitude * coefficient9 +
-                deltaLatitude * deltaLatitude * deltaLatitude * deltaLongitude * deltaLongitude * coefficient10 +
-                deltaLatitude * deltaLongitude * deltaLongitude * deltaLongitude * deltaLongitude * coefficient11;
-        }
-
-        static double DeltaLongitude(double deltaLatitude, double deltaLongitude, double coefficient1, double coefficient2, double coefficient3, double coefficient4, double coefficient5, double coefficient6, double coefficient7, double coefficient8, double coefficient9)
-        {
-            return deltaLongitude * coefficient1 +
-                deltaLatitude * deltaLongitude * coefficient2 +
-                deltaLatitude * deltaLatitude * deltaLongitude * coefficient3 +
-                deltaLongitude * deltaLongitude * deltaLongitude * coefficient4 +
-                deltaLatitude * deltaLatitude * deltaLatitude * deltaLatitude * coefficient5 +
-                deltaLatitude * deltaLongitude * deltaLongitude * deltaLongitude * coefficient6 +
-                deltaLatitude * deltaLatitude * deltaLatitude * deltaLatitude * deltaLongitude * coefficient7 +
-                deltaLatitude * deltaLatitude * deltaLongitude * deltaLongitude * deltaLongitude * coefficient8 +
-                deltaLongitude * deltaLongitude * deltaLongitude * deltaLongitude * deltaLongitude * coefficient9;
-        }
-
-        static double FromDelta(double deltaLatitude, double deltaLongitude, double coefficient1, double coefficient2, double coefficient3, double coefficient4, double coefficient5, double coefficient6, double coefficient7, double coefficient8, double coefficient9, double coefficient10)
-        {
-            return coefficient1 +
-                coefficient2 * deltaLatitude +
-                coefficient3 * deltaLongitude +
-                coefficient4 * deltaLatitude * deltaLatitude +
-                coefficient5 * deltaLatitude * deltaLongitude +
-                coefficient6 * deltaLongitude * deltaLongitude +
-                coefficient7 * deltaLatitude * deltaLatitude * deltaLatitude +
-                coefficient8 * deltaLatitude * deltaLatitude * deltaLongitude +
-                coefficient9 * deltaLatitude * deltaLongitude * deltaLongitude +
-                coefficient10 * deltaLongitude * deltaLongitude * deltaLongitude;
-        }
-
-        static double CrtmLatitude(double crtmLatitude, double crtmLongitude, double coefficient1, double coefficient2, double coefficient3)
-        {
-            return CrtmLongitude(crtmLongitude, crtmLatitude, coefficient1, coefficient2, -1 * coefficient3);
-        }
-
-        static double CrtmLongitude(double crtmLatitude, double crtmLongitude, double coefficient1, double coefficient2, double coefficient3)
-        {
-            return coefficient1 + coefficient2 * crtmLongitude + coefficient3 * crtmLatitude;
-        }
-    }
+  private static crtmLongitude(
+    crtmLatitude: number,
+    crtmLongitude: number,
+    coefficient1: number,
+    coefficient2,
+    coefficient3: number
+  ): number {
+    return coefficient1 + coefficient2 * crtmLongitude + coefficient3 * crtmLatitude;
+  }
 }

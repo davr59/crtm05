@@ -1,4 +1,4 @@
-﻿interface ICoefficients {
+﻿export interface ICoefficients {
   b10: number;
   b01: number;
   b11: number;

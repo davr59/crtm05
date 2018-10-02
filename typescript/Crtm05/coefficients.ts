@@ -1,4 +1,6 @@
-﻿const _a10: number = 6337358;
+﻿import { ICoefficients } from './icoefficients';
+
+const _a10: number = 6337358;
 const _a01: number = 6281873;
 const _a20: number = 10883;
 const _a11: number = -1100471;
@@ -134,7 +136,7 @@ const _d21: number = -12.36;
 const _d12: number = -0.03;
 const _d03: number = 4.12;
 
-class coefficients implements ICoefficients {
+export class Coefficients implements ICoefficients {
   a10: number = _a10;
   a01: number = _a01;
   a20: number = _a20;

@@ -1,4 +1,4 @@
-﻿interface IParameters {
+﻿export interface IParameters {
   latitudeOrigin: number;
   longitudeOrigin: number;
   la: number;
