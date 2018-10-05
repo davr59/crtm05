@@ -1,19 +1,19 @@
 ﻿export abstract class CoordinateSystem {
   protected constructor(private latitude: number, private longitude: number) {}
 
-  getLatitude(): number {
+  public getLatitude(): number {
     return this.latitude;
   }
 
-  getLongitude(): number {
+  public getLongitude(): number {
     return this.longitude;
   }
 
-  setLatitude(latitude: number) {
+  public setLatitude(latitude: number) {
     this.latitude = latitude;
   }
 
-  setLongitude(longitude: number) {
+  public setLongitude(longitude: number) {
     this.longitude = longitude;
   }
 }
