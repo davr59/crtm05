@@ -1,8 +1,8 @@
 # CRTM05
 
-C# library (.NET Standard 2.0) for transforming proyected coordinates from/to [CRTM05](https://epsg.io/5367), [North Lambert](https://epsg.io/102009), [South Lambert](https://epsg.io/102015) and [Geographic](https://epsg.io/4326).
+C# library (.NET Standard 2.0) and TypeScript library (3.1) for transforming proyected coordinates from/to [CRTM05](https://epsg.io/5367), [North Lambert](https://epsg.io/102009), [South Lambert](https://epsg.io/102015) and [Geographic](https://epsg.io/4326).
 
-Biblioteca en C# (.NET Standard 2.0) para tranformar coordenadas de/a [CRTM05](https://epsg.io/5367), [Lambert Norte](https://epsg.io/102009), [Lambert Sur](https://epsg.io/102015) y [Geográfica](https://epsg.io/4326).
+Biblioteca en C# (.NET Standard 2.0) y biblioteca en TypeScript (3.1) para transformar coordenadas de/a [CRTM05](https://epsg.io/5367), [Lambert Norte](https://epsg.io/102009), [Lambert Sur](https://epsg.io/102015) y [Geográfica](https://epsg.io/4326).
 
 ## Quickstart | Inicio rápido
 
