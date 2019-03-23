@@ -2,7 +2,6 @@
   "name": "crtm05",
   "version": "1.0.0",
   "description": "crtm05",
-  "main": "index.js",
   "dependencies": {
   },
   "devDependencies": {
