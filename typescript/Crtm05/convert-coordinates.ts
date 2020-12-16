@@ -1,11 +1,11 @@
-﻿import { IParameters } from './iparameters';
-import { ICoefficients } from './icoefficients';
-import { Parameters } from './parameters';
-import { Coefficients } from './coefficients';
+﻿import { Coefficients } from './coefficients';
 import { Crtm05CoordinateSystem } from './ctrm05/crtm05-coordinate-system';
 import { GeographicCoordinateSystem } from './geographic/geographic-coordinate-system';
+import { ICoefficients } from './icoefficients';
+import { IParameters } from './iparameters';
 import { NorthLambertCoordinateSystem } from './lambert/north-lambert-coordinate-system';
 import { SouthLambertCoordinateSystem } from './lambert/south-lambert-coordinate-system';
+import { Parameters } from './parameters';
 
 export class ConvertCoordinates {
   static toGeographicFromCrtm05(
@@ -53,28 +53,28 @@ export class ConvertCoordinates {
     coordinates: Crtm05CoordinateSystem,
     coefficients: ICoefficients = new Coefficients()
   ): NorthLambertCoordinateSystem {
-    const crtm98Latitude = this.crtmLatitude(
+    const crtm98Latitude = this.crtmInverse(
       coordinates.getLatitude(),
       coordinates.getLongitude(),
       coefficients.e0,
       coefficients.e1,
       coefficients.f1
     );
-    const crtm98Longitude = this.crtmLongitude(
+    const crtm98Longitude = this.crtmNormal(
       coordinates.getLatitude(),
       coordinates.getLongitude(),
       coefficients.f0,
       coefficients.e1,
       coefficients.f1
     );
-    const ctrm90Latitude = this.crtmLatitude(
+    const ctrm90Latitude = this.crtmInverse(
       crtm98Latitude,
       crtm98Longitude,
       coefficients.m0,
       coefficients.m1,
       coefficients.n1
     );
-    const ctrm90Longitude = this.crtmLongitude(
+    const ctrm90Longitude = this.crtmNormal(
       crtm98Latitude,
       crtm98Longitude,
       coefficients.n0,
@@ -119,28 +119,28 @@ export class ConvertCoordinates {
     coordinates: Crtm05CoordinateSystem,
     coefficients: ICoefficients = new Coefficients()
   ): SouthLambertCoordinateSystem {
-    const crtm98Latitude = this.crtmLatitude(
+    const crtm98Latitude = this.crtmInverse(
       coordinates.getLatitude(),
       coordinates.getLongitude(),
       coefficients.e0,
       coefficients.e1,
       coefficients.f1
     );
-    const crtm98Longitude = this.crtmLongitude(
+    const crtm98Longitude = this.crtmNormal(
       coordinates.getLatitude(),
       coordinates.getLongitude(),
       coefficients.f0,
       coefficients.e1,
       coefficients.f1
     );
-    const ctrm90Latitude = this.crtmLatitude(
+    const ctrm90Latitude = this.crtmInverse(
       crtm98Latitude,
       crtm98Longitude,
       coefficients.m0,
       coefficients.m1,
       coefficients.n1
     );
-    const ctrm90Longitude = this.crtmLongitude(
+    const ctrm90Longitude = this.crtmNormal(
       crtm98Latitude,
       crtm98Longitude,
       coefficients.n0,
@@ -228,8 +228,8 @@ export class ConvertCoordinates {
     coordinates: NorthLambertCoordinateSystem,
     coefficients: ICoefficients = new Coefficients()
   ): Crtm05CoordinateSystem {
-    const deltaLatitude = (coordinates.getLatitude() - 271820.52) * 0.00001;
-    const deltaLongitude = (coordinates.getLongitude() - 500000) * 0.00001;
+    const deltaLatitude = (coordinates.getLatitude() - 500000) * 0.00001;
+    const deltaLongitude = (coordinates.getLongitude() - 271820.52) * 0.00001;
     const crtm90Latitude = this.fromDelta(
       deltaLatitude,
       deltaLongitude,
@@ -258,31 +258,31 @@ export class ConvertCoordinates {
       coefficients.bb12,
       coefficients.bb03
     );
-    const crtm98Latitude = this.crtmLatitude(
+    const crtm98Latitude = this.crtmInverse(
       crtm90Latitude,
       crtm90Longitude,
       coefficients.mm0,
       coefficients.mm1,
       coefficients.nn1
     );
-    const crtm98Longitude = this.crtmLongitude(
+    const crtm98Longitude = this.crtmNormal(
       crtm90Latitude,
       crtm90Longitude,
       coefficients.nn0,
       coefficients.mm1,
       coefficients.nn1
     );
-    const latitude = this.crtmLatitude(
-      crtm98Latitude,
-      crtm98Longitude,
-      coefficients.ee0,
-      coefficients.ee1,
-      coefficients.ff1
-    );
-    const longitude = this.crtmLongitude(
+    const latitude = this.crtmNormal(
       crtm98Latitude,
       crtm98Longitude,
       coefficients.ff0,
+      coefficients.ee1,
+      coefficients.ff1
+    );
+    const longitude = this.crtmInverse(
+      crtm98Latitude,
+      crtm98Longitude,
+      coefficients.ee0,
       coefficients.ee1,
       coefficients.ff1
     );
@@ -294,8 +294,8 @@ export class ConvertCoordinates {
     coordinates: SouthLambertCoordinateSystem,
     coefficients: ICoefficients = new Coefficients()
   ): Crtm05CoordinateSystem {
-    const deltaLatitude = (coordinates.getLatitude() - 327987.44) * 0.00001;
-    const deltaLongitude = (coordinates.getLongitude() - 500000) * 0.00001;
+    const deltaLatitude = (coordinates.getLatitude() - 500000) * 0.00001;
+    const deltaLongitude = (coordinates.getLongitude() - 327987.44) * 0.00001;
     const crtm90Latitude = this.fromDelta(
       deltaLatitude,
       deltaLongitude,
@@ -324,31 +324,31 @@ export class ConvertCoordinates {
       coefficients.d12,
       coefficients.d03
     );
-    const crtm98Latitude = this.crtmLatitude(
+    const crtm98Latitude = this.crtmInverse(
       crtm90Latitude,
       crtm90Longitude,
       coefficients.mm0,
       coefficients.mm1,
       coefficients.nn1
     );
-    const crtm98Longitude = this.crtmLongitude(
+    const crtm98Longitude = this.crtmNormal(
       crtm90Latitude,
       crtm90Longitude,
       coefficients.nn0,
       coefficients.mm1,
       coefficients.nn1
     );
-    const latitude = this.crtmLatitude(
-      crtm98Latitude,
-      crtm98Longitude,
-      coefficients.ee0,
-      coefficients.ee1,
-      coefficients.ff1
-    );
-    const longitude = this.crtmLongitude(
+    const latitude = this.crtmNormal(
       crtm98Latitude,
       crtm98Longitude,
       coefficients.ff0,
+      coefficients.ee1,
+      coefficients.ff1
+    );
+    const longitude = this.crtmInverse(
+      crtm98Latitude,
+      crtm98Longitude,
+      coefficients.ee0,
       coefficients.ee1,
       coefficients.ff1
     );
@@ -453,26 +453,26 @@ export class ConvertCoordinates {
   ): number {
     return (
       coefficient1 +
-      coefficient2 * deltaLatitude +
-      coefficient3 * deltaLongitude +
-      coefficient4 * deltaLatitude * deltaLatitude +
-      coefficient5 * deltaLatitude * deltaLongitude +
-      coefficient6 * deltaLongitude * deltaLongitude +
-      coefficient7 * deltaLatitude * deltaLatitude * deltaLatitude +
-      coefficient8 * deltaLatitude * deltaLatitude * deltaLongitude +
-      coefficient9 * deltaLatitude * deltaLongitude * deltaLongitude +
-      coefficient10 * deltaLongitude * deltaLongitude * deltaLongitude
+      coefficient2 * deltaLongitude +
+      coefficient3 * deltaLatitude +
+      coefficient4 * deltaLongitude * deltaLongitude +
+      coefficient5 * deltaLongitude * deltaLatitude +
+      coefficient6 * deltaLatitude * deltaLatitude +
+      coefficient7 * deltaLongitude * deltaLongitude * deltaLongitude +
+      coefficient8 * deltaLongitude * deltaLongitude * deltaLatitude +
+      coefficient9 * deltaLongitude * deltaLatitude * deltaLatitude +
+      coefficient10 * deltaLatitude * deltaLatitude * deltaLatitude
     );
   }
 
-  private static crtmLatitude(
+  private static crtmInverse(
     crtmLatitude: number,
     crtmLongitude: number,
     coefficient1: number,
     coefficient2: number,
     coefficient3: number
   ): number {
-    return this.crtmLongitude(
+    return this.crtmNormal(
       crtmLongitude,
       crtmLatitude,
       coefficient1,
@@ -481,7 +481,7 @@ export class ConvertCoordinates {
     );
   }
 
-  private static crtmLongitude(
+  private static crtmNormal(
     crtmLatitude: number,
     crtmLongitude: number,
     coefficient1: number,
